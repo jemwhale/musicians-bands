@@ -23,9 +23,22 @@ describe('Band and Musician Models', () => {
 
     test('can create a Musician', async () => {
         const newLegend = await Musician.create({
+            name: 'Craig',
+            instrument: 'Guitar'
+        })
+        expect(newLegend.instrument).toEqual('Guitar');
+    })
+
+    test('can create a Musician that belongs to a band', async () => {
+        const ah = await Band.findOne({
+            where: {
+                name: 'Atomic Hero'
+            }
+        })
+        const newLegend1 = await ah.createMusician({
             name: 'Jack',
             instrument: 'Bass'
         })
-        expect(newLegend.instrument).toEqual('Bass');
+        expect(newLegend1.BandId).toEqual(ah.id);
     })
 })
