@@ -7,8 +7,8 @@ const {Song} = require('./Song')
 Musician.belongsTo(Band);
 Band.hasMany(Musician);
 
-Song.belongsToMany(Band, {through: 'perform', as: 'Performed_by'});
-Band.belongsToMany(Song, {through: 'perform', as: 'Performer'});
+Song.belongsToMany(Band, {through: 'perform', as: 'Performer'});
+Band.belongsToMany(Song, {through: 'perform', as: 'Performed'});
 
 async function main(){
     await db.sync({ force: true });
@@ -57,6 +57,42 @@ async function main(){
         name: 'Paul',
         instrument: 'Drums'
     })
+
+    const bodies = await Song.create({
+        title: 'Bodies',
+        year: 2017
+    })
+
+    const manhatthanStreets = await Song.create({
+        title: 'Manhatthan Streets',
+        year: 2017
+    })
+
+    const countYourBruises = await Song.create({
+        title: 'Count Your Bruises',
+        year: 2010
+    })
+
+    const birdsOfEngland = await Song.create({
+        title: 'Birds Of England',
+        year: 2013
+    })
+
+    await bodies.addPerformer(atomicHero)
+    await manhatthanStreets.addPerformer(atomicHero)
+    await countYourBruises.addPerformer(atomicHero)
+    await countYourBruises.addPerformer(theFlatliners)
+    await birdsOfEngland.addPerformer(theFlatliners)
+    await birdsOfEngland.addPerformer(atomicHero)
+
+    const bruisesBands = await countYourBruises.getPerformer()
+
+    // console.log(bruisesBands.map(x => x.name))
+
+    const atomicHeroFacts = await Band.findAll({include: Musician})
+
+    console.log(atomicHeroFacts.map(x => x.toJSON()))
+
 }
 
 main();
