@@ -7,8 +7,11 @@ const {Song} = require('./Song')
 Musician.belongsTo(Band);
 Band.hasMany(Musician);
 
-Song.belongsToMany(Band, {through: 'perform', as: 'Performer'});
-Band.belongsToMany(Song, {through: 'perform', as: 'Performed'});
+// Song.belongsToMany(Band, {through: 'perform', as: 'Performer'});
+// Band.belongsToMany(Song, {through: 'perform', as: 'Performed'});
+
+Song.belongsToMany(Band, {through: 'perform'});
+Band.belongsToMany(Song, {through: 'perform'});
 
 async function main(){
     await db.sync({ force: true });
@@ -78,21 +81,38 @@ async function main(){
         year: 2013
     })
 
-    await bodies.addPerformer(atomicHero)
-    await manhatthanStreets.addPerformer(atomicHero)
-    await countYourBruises.addPerformer(atomicHero)
-    await countYourBruises.addPerformer(theFlatliners)
-    await birdsOfEngland.addPerformer(theFlatliners)
-    await birdsOfEngland.addPerformer(atomicHero)
+    await atomicHero.addSong(bodies)
+    await atomicHero.addSong(manhatthanStreets)
+    await atomicHero.addSong(countYourBruises)
+    await atomicHero.addSong(birdsOfEngland)
+    await theFlatliners.addSong(countYourBruises)
+    await theFlatliners.addSong(birdsOfEngland)
 
-    const bruisesBands = await countYourBruises.getPerformer()
+    const bruisesBands = await atomicHero.getSongs()
+    console.log(bruisesBands.map(x => (x.title)))
 
-    // console.log(bruisesBands.map(x => x.name))
 
-    const atomicHeroFacts = await Band.findAll({include: Musician})
+    // await bodies.addPerformer(atomicHero)
+    // await manhatthanStreets.addPerformer(atomicHero)
+    // await countYourBruises.addPerformer(atomicHero)
+    // await countYourBruises.addPerformer(theFlatliners)
+    // await birdsOfEngland.addPerformer(theFlatliners)
+    // await birdsOfEngland.addPerformer(atomicHero)
 
-    console.log(atomicHeroFacts.map(x => x.toJSON()))
+    // const bruisesBands = await atomicHero.getPerformer()
+    // console.log(bruisesBands.map(x => (x.title)))
 
+    const bandsFacts = await Band.findAll({include: Musician})
+    console.log(bandsFacts.map(x => x.toJSON())[0].Musicians[1].name)
+
+    const ahFacts = await Band.findOne({
+        where:{
+            name: 'Atomic Hero'
+        },
+        include: Musician
+    })
+
+    console.log(ahFacts.Musicians[0].name)
 }
 
 main();
@@ -100,4 +120,4 @@ main();
 module.exports = {
     Band,
     Musician
-};
+}
